@@ -1,0 +1,40 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@inherits QuizScript
+
+<PageTitle>Quiz</PageTitle>
+
+<h1>Quiz</h1>
+
+@if (!TestFinished)
+{
+    <p>Пройдите тест</p>
+
+    <h3>@Question</h3>
+    <p>                                              
+        <InputRadioGroup @bind-Value="@SelectedAnswer">
+            @foreach(var answer in Answers)
+            {
+                <InputRadio Value=@answer />@answer<br />
+            }
+        </InputRadioGroup>
+    </p>
+
+    @if (!SwitchButtonsToFinish)
+    {
+        <button class="btn btn-primary" @onclick="NextQuestion">Следующий вопрос</button>
+    }
+    else
+    {
+        <button class="btn btn-primary" @onclick="FinishQuiz">Закончить опрос</button>
+    }
+}
+else
+{
+    <p>Поздравляем, ваше мнение никому не нужно</p>
+}
+
+
+
+
+
