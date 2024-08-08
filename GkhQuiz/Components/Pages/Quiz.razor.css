@@ -1,0 +1,8 @@
+﻿input:invalid {
+    border: 2px solid red;
+}
+
+.mainView {
+    margin: auto;
+    width: 50%;
+}

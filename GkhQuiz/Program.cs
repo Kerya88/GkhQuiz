@@ -1,4 +1,5 @@
 using GkhQuiz.Components;
+using GkhQuiz.Services;
 
 namespace GkhQuiz
 {
@@ -11,6 +12,8 @@ namespace GkhQuiz
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
+
+            builder.Services.AddTransient<IQuizService, QuizService>();
 
             var app = builder.Build();
 
