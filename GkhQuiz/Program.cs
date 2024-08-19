@@ -13,7 +13,10 @@ namespace GkhQuiz
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
-            builder.Services.AddTransient<IQuizService, QuizService>();
+            builder.Services.AddScoped<ISessionStorageService, SessionStorageService>();
+            builder.Services.AddScoped<ICryptoService, CryptoService>();
+            builder.Services.AddScoped<IQuizService, QuizService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
 
             var app = builder.Build();
 
@@ -32,6 +35,11 @@ namespace GkhQuiz
 
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode();
+
+            app.Map("/", () =>
+            {
+                return Results.Redirect("/Quiz");
+            });
 
             app.Run();
         }

@@ -2,18 +2,23 @@
 using GkhQuiz.Enums;
 using GkhQuiz.Services;
 using Microsoft.AspNetCore.Components;
-using System.Net;
 using System.Text.RegularExpressions;
 
 namespace GkhQuiz.Components.Pages
 {
     public class QuizScript : ComponentBase
     {
-        readonly Regex _fioRegex = new(@"^[А-ЯЁ]{1}[а-яё]{2,}\s[А-ЯЁ]{1}[а-яё]{2,}\s[А-ЯЁ]{1}[а-яё]{2,}$");
-        readonly Regex _roRegex = new(@"^[А-ЯЁа-яё\s]+,{1}\s*[А-ЯЁа-яё\s]+,{1}\s*\d+$");
+        readonly Regex _fioRegex = new(@"^[А-ЯЁ]{1}[а-яё]{1,}\s[А-ЯЁ]{1}[а-яё]{1,}\s[А-ЯЁ]{1}[а-яё]{1,}$");
+        readonly Regex _roRegex = new(@"^[А-ЯЁа-яё\-\s]+,{1}\s*[А-ЯЁа-яё\-\s]+,{1}\s*\d+[А-ЯЁа-яё]?$");
 
         [Inject]
         IQuizService QuizService { get; set; }
+        [Inject]
+        ISessionStorageService SessionStorageService { get; set; }
+        [Inject]
+        NavigationManager NavigationManager { get; set; }
+        [Inject]
+        ICryptoService CryptoService { get; set; }
 
         List<Entities.Quiz> _quizzes;
         int _stage;
@@ -56,9 +61,31 @@ namespace GkhQuiz.Components.Pages
                 _quizzes = QuizService.GetNowQuizzes();
                 SetDataOnPage(_quizzes[0]);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 SetExceptionOnPage(ex);
+            }
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender) 
+            {
+                var userData = await SessionStorageService.GetAsync<StorageProxy>("UserData");
+
+                if (userData != null && DateTime.Now < userData.ExpiredAt)
+                {
+                    var hash = CryptoService.SimpleGetAccessToken(userData.Email, userData.Code);
+
+                    if (hash != userData.Hash)
+                    {
+                        NavigationManager.NavigateTo("/Quiz/login", true);
+                    }
+                }
+                else
+                {
+                    NavigationManager.NavigateTo("/Quiz/login", true);
+                }
             }
         }
 
@@ -83,7 +110,7 @@ namespace GkhQuiz.Components.Pages
             else
             {
                 Question.Answer = SelectedRO;
-                ManagingOrganization = string.IsNullOrEmpty(FoundedROs[SelectedRO][1]) 
+                ManagingOrganization = string.IsNullOrEmpty(FoundedROs[SelectedRO][1])
                     ? $"На сайте Электронного ЖКХ не найдена информация об управляющей компании по адресу {FoundedROs[SelectedRO][0]}"
                     : $"Ваша управляющая компания - {FoundedROs[SelectedRO][1]}";
                 SetManagingOrganization = true;
@@ -122,14 +149,17 @@ namespace GkhQuiz.Components.Pages
             }
         }
 
-        public void FinishQuiz()
+        public async Task FinishQuizAsync()
         {
+            var userData = await SessionStorageService.GetAsync<StorageProxy>("UserData");
+
             Question.Answer = SelectedAnswer;
 
             ManagingOrganization = string.Empty;
             SelectedAnswer = string.Empty;
             TestFinished = true;
             Quiz.Passed = true;
+            Quiz.Email = userData.Email;
             HasNextQuiz = _quizzes.Where(x => !x.Passed).Any();
 
             QuizService.SendPassedQuiz(Quiz);
@@ -206,6 +236,12 @@ namespace GkhQuiz.Components.Pages
             }
         }
 
-        
+        private class StorageProxy(string email, string code, string hash)
+        {
+            public string Email { get; set; } = email;
+            public string Code { get; set; } = code;
+            public string Hash { get; set; } = hash;
+            public DateTime ExpiredAt { get; set; } = DateTime.Now.AddMinutes(5);
+        }
     }
 }

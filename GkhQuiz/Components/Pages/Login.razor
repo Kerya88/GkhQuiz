@@ -1,0 +1,33 @@
+﻿@page "/Quiz/login"
+@rendermode InteractiveServer
+@inherits LoginScript
+
+<PageTitle>Опрос ГЖИ</PageTitle>
+<div class="mainView">
+    <div>
+        <h4>Введите свой адрес электронной почты для отправки кода проверки</h4>
+        <EditForm Model="@LoginData">
+            <DataAnnotationsValidator/>
+            <ValidationSummary/>
+
+            <div>
+                <lable for="email">Электронная почта</lable>
+                <InputText id="email" @bind-Value="LoginData.Email" class="form-control" />
+                <lable for="code">Код подтверждения</lable>
+                <InputText id="code" @bind-Value="LoginData.VerificationCode" class="form-control" />
+            </div>
+            <div>
+                <button class="btn btn-primary" @onclick="SendCodeAsync">Получить код на электронную почту</button>
+                <button class="btn btn-primary" @onclick="CheckCodeAsync">Подтвердить электронную почту</button>
+            </div>
+        </EditForm>
+    </div>
+    
+    @if (!string.IsNullOrEmpty(ExceptionMessage))
+    {
+        <p style="color: red">@ExceptionMessage</p>
+    }
+</div>
+
+
+

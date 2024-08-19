@@ -1,13 +1,14 @@
-﻿@page "/"
+﻿@page "/Quiz"
 @rendermode InteractiveServer
 @inherits QuizScript
+@* @attribute [Authorize] *@
 
-<PageTitle>Quiz</PageTitle>
+<PageTitle>Опрос ГЖИ</PageTitle>
 
 <div class="mainView">
     @if (!ExceptionState)
     {
-        <h1>@Quiz.Name</h1>
+        <h1>@Quiz?.Name</h1>
     }
     else
     {
@@ -16,7 +17,7 @@
     
     @if (!TestStarted && !ExceptionState)
     {
-        <p>@Quiz.IntroText</p>
+        <p>@Quiz?.IntroText</p>
         <button class="btn btn-primary" @onclick="StartQuiz">Начать опрос</button>
     }
     
@@ -49,7 +50,7 @@
                     {
                         <p style="color: red">Ваш адрес не найден в системе Электронного ЖКХ. Попробуйте еще раз</p>
                     }
-                    <input type="text" required pattern="^[А-ЯЁа-яё\s]+,{1}\s*[А-ЯЁа-яё\s]+,{1}\s*\d+$" @bind="@SelectedAnswer" />
+                    <input type="text" required pattern="^[А-ЯЁа-яё\-\s]+,{1}\s*[А-ЯЁа-яё\-\s]+,{1}\s*\d+[А-ЯЁа-яё]?$" @bind="@SelectedAnswer" />
                     <p />
                     <button class="btn btn-primary" @onclick="SearchRO">Поиск</button>
                     <p />
@@ -69,7 +70,7 @@
                 };
                 case Enums.QuestionType.IsFIO:
                 {
-                    <input type="text" required pattern="^[А-ЯЁ]{1}[а-яё]{2,}\s[А-ЯЁ]{1}[а-яё]{2,}\s[А-ЯЁ]{1}[а-яё]{2,}$" @bind="@SelectedAnswer" />
+                    <input type="text" required pattern="^[А-ЯЁ]{1}[а-яё]{1,}\s[А-ЯЁ]{1}[а-яё]{1,}\s[А-ЯЁ]{1}[а-яё]{1,}$" @bind="@SelectedAnswer" />
                     <br /><br />
                     break;
                 };
@@ -88,7 +89,7 @@
             }
             else
             {
-                <button class="btn btn-primary" @onclick="FinishQuiz">Закончить опрос</button>
+                <button class="btn btn-primary" @onclick="FinishQuizAsync">Закончить опрос</button>
             }
     }
     
