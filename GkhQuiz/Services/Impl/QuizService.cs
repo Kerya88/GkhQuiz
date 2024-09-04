@@ -76,7 +76,7 @@ namespace GkhQuiz.Services
                     Answers = y.Answers?.Select(x => new Answer
                     {
                         Id = x.Id,
-                        Name = x.Answer
+                        Name = " " + x.Answer
                     })
                     .ToList()
                 })
