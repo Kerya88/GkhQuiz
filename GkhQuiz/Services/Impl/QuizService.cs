@@ -89,7 +89,7 @@ namespace GkhQuiz.Services
 
         private Dictionary<string, string[]> ParseFoundROsResponse(RealityAddres[] rawROs)
         {
-            return rawROs.ToDictionary(x => x.Id, x => new string[] { x.Addres, x.UK });
+            return rawROs.ToDictionary(x => x.Id, x => new string[] { " " + x.Addres, x.UK });
         }
 
         private OnlineSurveyProxy ParseQuizToProxy(Quiz passedQuiz)

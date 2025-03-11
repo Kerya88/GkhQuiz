@@ -1,7 +1,6 @@
 ﻿@page "/Quiz"
 @rendermode InteractiveServer
 @inherits QuizScript
-@* @attribute [Authorize] *@
 
 <PageTitle>Опрос ГЖИ</PageTitle>
 
@@ -58,7 +57,7 @@
                     {
                         <p>
                             Выберете точный адрес:<br />
-                            <InputRadioGroup @bind-Value="SelectedRO">
+                            <InputRadioGroup required @bind-Value="SelectedRO">
                                 @foreach(var foundedRO in FoundedROs)
                                 {
                                     <InputRadio Value=@foundedRO.Key />@foundedRO.Value[0]<br />
@@ -95,7 +94,7 @@
     
     @if (TestFinished && !ExceptionState)
     {
-        <p>@Quiz.OutroText</p>
+        <p>@Quiz?.OutroText</p>
         @if (HasNextQuiz)
         {
             <button class="btn btn-primary" @onclick="NextQuiz">Следующий опрос</button>

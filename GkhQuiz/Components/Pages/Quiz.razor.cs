@@ -63,7 +63,7 @@ namespace GkhQuiz.Components.Pages
             }
             catch (Exception ex)
             {
-                SetExceptionOnPage(ex);
+                SetExceptionOnPage(ex.Message);
             }
         }
 
@@ -96,7 +96,7 @@ namespace GkhQuiz.Components.Pages
 
         public void NextQuestion()
         {
-            if (string.IsNullOrEmpty(SelectedRO))
+            if (Question.QuestionType != QuestionType.IsROId)
             {
                 var valid = ValidateAnswer();
 
@@ -109,14 +109,22 @@ namespace GkhQuiz.Components.Pages
             }
             else
             {
-                Question.Answer = SelectedRO;
-                ManagingOrganization = string.IsNullOrEmpty(FoundedROs[SelectedRO][1])
-                    ? $"На сайте Электронного ЖКХ не найдена информация об управляющей компании по адресу {FoundedROs[SelectedRO][0]}"
-                    : $"Ваша управляющая компания - {FoundedROs[SelectedRO][1]}";
-                SetManagingOrganization = true;
-                SelectedRO = string.Empty;
+                if (!string.IsNullOrEmpty(SelectedRO))
+                {
+                    if (!string.IsNullOrEmpty(FoundedROs[SelectedRO][1]))
+                    {
+                        Question.Answer = SelectedRO;
+                        ManagingOrganization = $"Ваша управляющая компания - {FoundedROs[SelectedRO][1]}";
+                        SetManagingOrganization = true;
+                        SelectedRO = string.Empty;
 
-                UpdateDataOnPage();
+                        UpdateDataOnPage();
+                    }
+                    else
+                    {
+                        SetExceptionOnPage("ГЖИ не располагает сведениями об Вашей УК, дальнейшее прохождение опроса невозможно");
+                    }
+                }
             }
         }
 
@@ -144,7 +152,7 @@ namespace GkhQuiz.Components.Pages
                 }
                 catch (Exception ex)
                 {
-                    SetExceptionOnPage(ex);
+                    SetExceptionOnPage(ex.Message);
                 }
             }
         }
@@ -171,11 +179,11 @@ namespace GkhQuiz.Components.Pages
             SetDataOnPage(quiz);
         }
 
-        private void SetExceptionOnPage(Exception ex)
+        private void SetExceptionOnPage(string exception)
         {
             ExceptionState = true;
 
-            ExceptionMessage = ex.Message;
+            ExceptionMessage = exception;
         }
 
         private void SetDataOnPage(Entities.Quiz quiz)
